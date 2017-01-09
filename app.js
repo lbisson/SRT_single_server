@@ -4,10 +4,17 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+var mongoose = require('mongoose');
+
 
 var appRoutes = require('./routes/approutes');
+var predictionRoutes = require('./routes/predictionroutes');
 
 var app = express();
+// Set up Mongoose to connect to mongo dev instance.
+// This url needs to be replaced before deployment
+mongoose.connect('localhost:27017/srt_dash');
+
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -21,7 +28,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Cross-Origin Resource Sharing
+// Cross-Origin Resource Sharing, in order to hit web service from another host
 app.use(function (req, res, next) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
@@ -29,7 +36,8 @@ app.use(function (req, res, next) {
     next();
 });
 
-
+// Set up the server routes here for node.js
+app.use('/prediction', predictionRoutes);
 app.use('/', appRoutes);
 
 // catch 404 and forward to error handler
